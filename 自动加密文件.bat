@@ -2,7 +2,7 @@
 
 rem ——————————————————————————
 
-rem ###随机加密脚本 by Rxinns & ChatGPT-3.5###
+rem #####随机加密脚本 by Rxinns & ChatGPT-3.5#####
 
 rem 这个脚本可以调用7-zip将任意单个文件或单个文件夹
 rem 加密打包，密码为程序随机生成的64位大小写字母+数字。
@@ -23,10 +23,6 @@ set "zipProgram=C:\Program Files\7-Zip\7z.exe"
 
 rem ——————————————————————————
 
-REM ▓▓▓▓▓▓▓▓▓▓▓▓▓▓
-REM ▓▓输出路径在这里！！！▓▓
-REM ▓▓▓▓▓▓▓▓▓▓▓▓▓▓
-set "outputFolder=D:\desktop\"
 
 rem ——————————————————————————
 
@@ -48,15 +44,22 @@ if not exist "%zipProgram%" (
 rem ——————————————————————————
 
 REM 提示用户输入要压缩的文件路径
+:fileinput
 color 1E
+cls
 echo.
 echo  -----------------------------------------------
-echo                      提示：
-echo        仅支持单个文件或者单个文件夹处理，
-echo           不支持多个文件或多个文件夹！
+echo                        提示
+echo.
+echo         仅支持单个文件或者单个文件夹处理
+echo.
+echo            不支持多个文件、多个文件夹
+echo.
+echo            文件将会保存到你的电脑桌面
 echo  -----------------------------------------------
 echo.
-set /p "filePath=请输入要压缩的文件/文件夹的路径，或拖动文件/文件夹到窗口内，然后按 Enter 键: "
+set "filepath=（空）"
+set /p "filePath=请输入要压缩的文件/文件夹的路径（支持拖动），然后按 Enter 键: "
 set "filePath=%filePath:"=%"
 
 rem ——————————————————————————
@@ -66,16 +69,17 @@ if not exist "%filePath%" (
     cls
     color 4E
     echo.
-    echo 您输入的路径为：
-    echo.
-    echo "%filePath%"
-    echo.
+
     echo  -----------------------------------------------
     echo   错误：找不到文件/文件夹。请检查路径是否有误。
     echo  -----------------------------------------------
     echo.
+    echo 您输入的路径为：
+    echo.
+    echo "%filePath%"
+    echo.
     pause 
-    goto :Error
+    goto :fileinput
 )
 
 rem ——————————————————————————
@@ -105,8 +109,13 @@ set "compressedFileName=!fileName!!extension!.7z"
 
 rem ——————————————————————————
 
+REM 检测电脑桌面的位置
+for /f "tokens=2,*" %%i in ('reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Desktop"') do set "desktopdir=%%j"
+
+rem ——————————————————————————
+
 REM 压缩文件
-"%zipProgram%" a -mx0 -p%password% "%outputFolder%!compressedFileName!" "%filePath%"
+"%zipProgram%" a -mx0 -p%password% "%desktopdir%\!compressedFileName!" "%filePath%"
 
 rem ——————————————————————————
 
@@ -146,18 +155,19 @@ if /i "%addPassword%"=="y" (
 	cls
 	echo  -----------------------------------------------
 	echo.
-	echo  %compressedFileName% 的密码是：%password%
+	echo  "%compressedFileName%" 的密码是：%password%
 	echo.
 	echo  -----------------------------------------------
 	echo.
 	echo      已尝试将密码写入文件名，请检查是否成功
 	echo.
 	echo  -----------------------------------------------
+	endlocal
 ) else (
 	cls
 	echo  -----------------------------------------------
 	echo.
-	echo  %compressedFileName% 的密码是：%password%
+	echo  "%compressedFileName%" 的密码是：%password%
 	echo.
 	echo  -----------------------------------------------
 	echo.
@@ -172,6 +182,7 @@ rem ——————————————————————————
 
 :Error
 REM 报错并退出脚本
+endlocal
 pause >nul
 
 rem ——————————————————————————
