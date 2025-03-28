@@ -151,7 +151,7 @@ REM 将密码写入文件名
 set /p "addPassword=输入“Y”可以将密码写入文件名： "
 if /i "%addPassword%"=="y" (
     set "compressedFileNameWithPassword=!fileName!!extension!（密码：!password!）.7z"
-    ren "%outputfolder%!compressedFileName!" "!compressedFileNameWithPassword!"
+    ren "%desktopdir%\!compressedFileName!" "!compressedFileNameWithPassword!"
 	cls
 	echo  -----------------------------------------------
 	echo.
