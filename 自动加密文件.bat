@@ -1,28 +1,41 @@
+rem “起手式”
 @echo off
-
-rem ——————————————————————————
-
-rem #####随机加密脚本 by Rxinns & ChatGPT-3.5#####
-
-rem 这个脚本可以调用7-zip将任意单个文件或单个文件夹
-rem 加密打包，密码为程序随机生成的64位大小写字母+数字。
-
-rem ——————————————————————————
-
-REM 修改终端外观
-mode 49,15
-title 自动加密文件脚本（基于 7-zip ）
 setlocal enabledelayedexpansion
+mode 49,20
+title 自动加密文件脚本（基于 7-zip ）
 
 rem ——————————————————————————
+rem ##### 文件加密脚本 by Rxinns & ChatGPT-3.5 #####
+rem 鸣谢：batch之家
+rem 这个脚本可以调用7-zip将任意单个文件或单个文件夹进行
+rem 加密打包，密码为程序随机生成的大小写字母+数字。
+rem https://github.com/RxinnotRstar/
+rem ——————————————————————————
 
-REM ▓▓▓▓▓▓▓▓▓▓▓▓▓▓
-REM ▓▓程序路径在这里！！！▓▓
-REM ▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+REM ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+
+REM ▓ 7-zip程序路径，可手动修改为自己的7z程序
+REM ▓ 看不懂的请重新安装7-zip
+REM ▓ 7-zip 官网：【 https://www.7-zip.org/ 】
+
 set "zipProgram=C:\Program Files\7-Zip\7z.exe"
 
 rem ——————————————————————————
 
+REM ▓ “自动写入密码”开关
+REM ▓ 如果需要请在等号后面输入“Ｙ”，否则请改成别的字
+
+set AddPassword=Ｙ
+
+REM ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+
+rem ——————————————————————————
+
+REM 防呆设计：“转译”圆角和大小写字符，避免设置失败
+if "%AddPassword%"=="Ｙ" set "AddPassword=Y"
+if "%AddPassword%"=="ｙ" set "AddPassword=y"
+if "%AddPassword%"=="Y" set "AddPassword=y"
+)
 
 rem ——————————————————————————
 
@@ -43,6 +56,12 @@ if not exist "%zipProgram%" (
 
 rem ——————————————————————————
 
+rem 检查AddPassword的值，然后显示到CLI上
+set "ShowAddPassword=关"
+if "%AddPassword%"=="y" set "ShowAddPassword=开"
+
+rem ——————————————————————————
+
 REM 提示用户输入要压缩的文件路径
 :fileinput
 color 1E
@@ -51,14 +70,16 @@ echo.
 echo  -----------------------------------------------
 echo                        提示
 echo.
-echo         仅支持单个文件或者单个文件夹处理
-echo.
-echo            不支持多个文件、多个文件夹
+echo      仅支持单个文件、文件夹处理，不支持多个
 echo.
 echo            文件将会保存到你的电脑桌面
 echo  -----------------------------------------------
+echo    可右键编辑脚本，修改下列设置（需要重启脚本）
 echo.
-set "filepath=（空）"
+echo            自动写密码到文件名：【%ShowAddPassword%】
+echo  -----------------------------------------------
+echo.
+set "filepath=（空白）"
 set /p "filePath=请输入要压缩的文件/文件夹的路径（支持拖动），然后按 Enter 键: "
 set "filePath=%filePath:"=%"
 
@@ -69,14 +90,13 @@ if not exist "%filePath%" (
     cls
     color 4E
     echo.
-
     echo  -----------------------------------------------
     echo   错误：找不到文件/文件夹。请检查路径是否有误。
     echo  -----------------------------------------------
     echo.
     echo 您输入的路径为：
     echo.
-    echo "%filePath%"
+    echo 【%filePath%】
     echo.
     pause 
     goto :fileinput
@@ -114,7 +134,7 @@ for /f "tokens=2,*" %%i in ('reg query "HKCU\Software\Microsoft\Windows\CurrentV
 
 rem ——————————————————————————
 
-REM 压缩文件
+REM 启动7-zip，压缩文件
 "%zipProgram%" a -mx0 -p%password% "%desktopdir%\!compressedFileName!" "%filePath%"
 
 rem ——————————————————————————
@@ -139,23 +159,44 @@ echo      ▓ 请复制密码，关闭窗口将无法找回密码▓
 echo      ▓ 请复制密码，关闭窗口将无法找回密码▓
 echo  -----------------------------------------------
 echo.
-echo  %compressedFileName% 的密码是：%password%
+echo  %compressedFileName% 的密码是：
+echo.
+echo %password%
 echo.
 echo  -----------------------------------------------
 echo.
 
 rem ——————————————————————————
 
-REM 将密码写入文件名
+
+REM 判断“AddPassword”变量是不是Y，如果是，直接写入密码
+if "%AddPassword%"=="y" (
+	goto DirectlyRenameForPassword
+)
+	
+)
+rem ——————————————————————————
+
+REM 询问用户是否将密码写入文件名
 :RenameForPassword
-set /p "addPassword=输入“Y”可以将密码写入文件名： "
-if /i "%addPassword%"=="y" (
+set /p "AddPassword=输入“Y”可以将密码写入文件名： "
+
+REM 防呆设计：“转译”圆角和大小写字符，避免设置失败
+if "%AddPassword%"=="Ｙ" set "AddPassword=Y"
+if "%AddPassword%"=="ｙ" set "AddPassword=y"
+if "%AddPassword%"=="Y" set "AddPassword=y"
+
+REM 开始将密码写入文件名
+:DirectlyRenameForPassword
+if /i "%AddPassword%"=="y" (
     set "compressedFileNameWithPassword=!fileName!!extension!（密码：!password!）.7z"
     ren "%desktopdir%\!compressedFileName!" "!compressedFileNameWithPassword!"
 	cls
 	echo  -----------------------------------------------
 	echo.
-	echo  "%compressedFileName%" 的密码是：%password%
+	echo  %compressedFileName% 的密码是：
+	echo.
+	echo %password%
 	echo.
 	echo  -----------------------------------------------
 	echo.
@@ -167,7 +208,9 @@ if /i "%addPassword%"=="y" (
 	cls
 	echo  -----------------------------------------------
 	echo.
-	echo  "%compressedFileName%" 的密码是：%password%
+	echo  %compressedFileName% 的密码是：
+	echo.
+	echo %password%	
 	echo.
 	echo  -----------------------------------------------
 	echo.
@@ -183,11 +226,16 @@ rem ——————————————————————————
 :Error
 REM 报错并退出脚本
 endlocal
+echo.
+echo                 按任意键退出脚本
 pause >nul
-
+exit 1
 rem ——————————————————————————
 
 :End
 REM 正常结束脚本
 endlocal
+echo.
+echo                 按任意键退出脚本
 pause >nul
+exit 0
