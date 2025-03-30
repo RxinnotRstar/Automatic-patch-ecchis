@@ -1,7 +1,7 @@
 rem “起手式”
 @echo off
 setlocal enabledelayedexpansion
-mode 49,20
+mode 49,25
 title 自动加密文件脚本（基于 7-zip ）
 
 rem ——————————————————————————
@@ -73,6 +73,12 @@ echo.
 echo      仅支持单个文件、文件夹处理，不支持多个
 echo.
 echo            文件将会保存到你的电脑桌面
+echo.
+echo        请勿输入带有英文括号、“^&”符号、
+echo.
+echo        “^<”、“^>”等符号，否则会导致出错
+echo.
+echo             作者正在尝试修复这个问题
 echo  -----------------------------------------------
 echo    可右键编辑脚本，修改下列设置（需要重启脚本）
 echo.
@@ -82,7 +88,6 @@ echo.
 set "filepath=（空白）"
 set /p "filePath=请输入要压缩的文件/文件夹的路径（支持拖动），然后按 Enter 键: "
 set "filePath=%filePath:"=%"
-
 rem ——————————————————————————
 
 REM 检测文件或文件夹是否存在
