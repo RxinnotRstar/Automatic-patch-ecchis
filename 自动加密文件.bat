@@ -74,11 +74,6 @@ echo      仅支持单个文件、文件夹处理，不支持多个
 echo.
 echo            文件将会保存到你的电脑桌面
 echo.
-echo        请勿输入带有英文括号、“^&”符号、
-echo.
-echo        “^<”、“^>”等符号，否则会导致出错
-echo.
-echo             作者正在尝试修复这个问题
 echo  -----------------------------------------------
 echo    可右键编辑脚本，修改下列设置（需要重启脚本）
 echo.
@@ -101,7 +96,7 @@ if not exist "%filePath%" (
     echo.
     echo 您输入的路径为：
     echo.
-    echo 【%filePath%】
+    echo "%filePath%"
     echo.
     pause 
     goto :fileinput
@@ -164,7 +159,7 @@ echo      ▓ 请复制密码，关闭窗口将无法找回密码▓
 echo      ▓ 请复制密码，关闭窗口将无法找回密码▓
 echo  -----------------------------------------------
 echo.
-echo  %compressedFileName% 的密码是：
+echo  "%compressedFileName% 的密码是："
 echo.
 echo %password%
 echo.
@@ -199,7 +194,7 @@ if /i "%AddPassword%"=="y" (
 	cls
 	echo  -----------------------------------------------
 	echo.
-	echo  %compressedFileName% 的密码是：
+	echo  "%compressedFileName% 的密码是："
 	echo.
 	echo %password%
 	echo.
@@ -213,7 +208,7 @@ if /i "%AddPassword%"=="y" (
 	cls
 	echo  -----------------------------------------------
 	echo.
-	echo  %compressedFileName% 的密码是：
+	echo  "%compressedFileName% 的密码是："
 	echo.
 	echo %password%	
 	echo.
