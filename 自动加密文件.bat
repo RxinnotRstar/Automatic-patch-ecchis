@@ -32,7 +32,7 @@ rem ——————————————————————————
 REM ▓ 密码位数（不可超过128或小于1）
 REM ▓ 也不推荐超过64，因为密码太长可能会导致文件名过长
 
-set PasswordCount=0
+set PasswordCount=16
 
 REM ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 
@@ -94,7 +94,6 @@ if !PasswordCount! LSS 1 (
 	set PasswordCount=16
 	echo 检测到"PasswordCount"数值小于1，已重设变量。
 	echo.
-	pause
 ) else if !PasswordCount! GTR 128 (
 	cls
 	color 60
@@ -103,7 +102,6 @@ if !PasswordCount! LSS 1 (
 	set PasswordCount=16
 	echo 检测到"PasswordCount"数值大于128，已重设变量。
 	echo.
-	pause
 )
 REM 报错信息加pause
 if "!3VarHasError!"=="1" (
