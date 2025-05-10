@@ -5,7 +5,7 @@ mode 49,25
 title 自动加密文件脚本（基于 7-zip ）
 
 rem ——————————————————————————
-rem ##### 文件加密脚本 by Rxinns & ChatGPT-3.5 #####
+rem ### 文件加密脚本 by Rxinns & ChatGPT & Deepseek ###
 rem 鸣谢：batch之家
 rem 这个脚本可以调用7-zip将任意单个文件或单个文件夹进行
 rem 加密打包，密码为程序随机生成的大小写字母+数字。
@@ -18,7 +18,7 @@ REM ▓ 7-zip程序路径，可手动修改为自己的7z程序
 REM ▓ 看不懂的请重新安装7-zip
 REM ▓ 7-zip 官网：【 https://www.7-zip.org/ 】
 
-set "zipProgram=C:\Program Files\7-Zip\7z.exe"
+set "ZipProgram=C:\Program Files\7-Zip\7z.exe"
 
 rem ——————————————————————————
 
@@ -27,9 +27,88 @@ REM ▓ 如果需要请在等号后面输入“Ｙ”，否则请改成别的字
 
 set AddPassword=Ｙ
 
+rem ——————————————————————————
+
+REM ▓ 密码位数（不可超过128或小于1）
+REM ▓ 也不推荐超过64，因为密码太长可能会导致文件名过长
+
+set PasswordCount=0
+
 REM ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 
 rem ——————————————————————————
+
+REM 防呆设计：检测上面的3个变量是否存在，以免小白删错
+set "3VarHasError=0"
+if defined ZipProgram (
+    echo 变量已定义 >nul
+) else (
+	color 60
+	echo.
+	set "3VarHasError=1"
+	set "ZipProgram=C:\Program Files\7-Zip\7z.exe"
+    echo 检测到“ZipProgram”变量不存在，已重设变量。
+	echo.
+)
+
+if defined AddPassword (
+    echo 变量已定义 >nul
+) else (
+	color 60
+	echo.
+	set "3VarHasError=1"
+	set AddPassword=Ｙ
+    echo 检测到“AddPassword”变量不存在，已重设变量。
+	echo.
+)
+
+if defined PasswordCount (
+    echo 变量已定义 >nul
+) else (
+	color 60
+	echo.
+	set "3VarHasError=1"
+	set PasswordCount=16
+    echo 检测到“PasswordCount”变量不存在，已重设变量。
+	echo.
+)
+
+REM 防呆设计：检测PasswordCount密码位数输入是否正确
+echo %PasswordCount%|findstr /r "^[0-9][0-9]*$" >nul
+if %errorlevel% equ 0 (
+    echo %PasswordCount% 是数字 >nul
+) else (
+	cls
+	color 60
+	echo.
+	set "3VarHasError=1"
+	set PasswordCount=16
+    echo 检测到“AddPassword”变量非数字，已重设变量。
+	echo.
+)
+if !PasswordCount! LSS 1 (
+	cls
+	color 60
+	echo.
+	set "3VarHasError=1"
+	set PasswordCount=16
+	echo 检测到"PasswordCount"数值小于1，已重设变量。
+	echo.
+	pause
+) else if !PasswordCount! GTR 128 (
+	cls
+	color 60
+	echo.
+	set "3VarHasError=1"
+	set PasswordCount=16
+	echo 检测到"PasswordCount"数值大于128，已重设变量。
+	echo.
+	pause
+)
+REM 报错信息加pause
+if "!3VarHasError!"=="1" (
+	pause
+)
 
 REM 防呆设计：“转译”圆角和大小写字符，避免设置失败
 if "%AddPassword%"=="Ｙ" set "AddPassword=Y"
@@ -78,6 +157,8 @@ echo  -----------------------------------------------
 echo    可右键编辑脚本，修改下列设置（需要重启脚本）
 echo.
 echo            自动写密码到文件名：【%ShowAddPassword%】
+echo.
+echo                    密码位数：【!PasswordCount!】
 echo  -----------------------------------------------
 echo.
 set "filepath=（空白）"
@@ -108,7 +189,7 @@ REM 随机生成密码
 setlocal EnableDelayedExpansion
 set "chars=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 set "password="
-for /L %%i in (1,1,64) do (
+for /L %%i in (1,1,%PasswordCount%) do (
     set /a "rand=!random! %% 62"
     for /f %%j in ("!rand!") do (
         set "password=!password!!chars:~%%j,1!"
@@ -135,7 +216,7 @@ for /f "tokens=2,*" %%i in ('reg query "HKCU\Software\Microsoft\Windows\CurrentV
 rem ——————————————————————————
 
 REM 启动7-zip，压缩文件
-"%zipProgram%" a -mx0 -p%password% "%desktopdir%\!compressedFileName!" "%filePath%"
+"%ZipProgram%" a -mx0 -p%password% "%desktopdir%\!compressedFileName!" "%filePath%"
 
 rem ——————————————————————————
 
