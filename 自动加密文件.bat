@@ -83,7 +83,7 @@ if %errorlevel% equ 0 (
 	echo.
 	set "3VarHasError=1"
 	set PasswordCount=16
-    echo 检测到“AddPassword”变量非数字，已重设变量。
+    echo 检测到“PasswordCount”变量非数字，已重设变量。
 	echo.
 )
 if !PasswordCount! LSS 1 (
