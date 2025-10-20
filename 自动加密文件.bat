@@ -32,7 +32,7 @@ rem ——————————————————————————
 REM ▓ 密码位数（不可超过128或小于1）
 REM ▓ 也不推荐超过64，因为密码太长可能会导致文件名过长
 
-set PasswordCount=16
+set PasswordCount=27
 
 REM ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 
@@ -83,7 +83,7 @@ if %errorlevel% equ 0 (
 	echo.
 	set "3VarHasError=1"
 	set PasswordCount=16
-    echo 检测到“PasswordCount”变量非数字，已重设变量。
+    echo 检测到“PasswordCount”变量非正整数，已重设变量。
 	echo.
 )
 if !PasswordCount! LSS 1 (
@@ -184,17 +184,21 @@ if not exist "%filePath%" (
 rem ——————————————————————————
 
 REM 随机生成密码
+REM 毫秒级随机种子生成密码
 setlocal EnableDelayedExpansion
 set "chars=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+:: 取毫秒级时间戳 + 两次 random 做种子
+for /f "tokens=2 delims==" %%a in ('wmic os get localdatetime /value ^| findstr "="') do set "ts=%%a"
+set /a "seed=!ts:~-4!*37+!random!*!random!"
 set "password="
+
 for /L %%i in (1,1,%PasswordCount%) do (
-    set /a "rand=!random! %% 62"
-    for /f %%j in ("!rand!") do (
-        set "password=!password!!chars:~%%j,1!"
-    )
+    set /a "rand=(seed %% 62)"
+    for /f %%j in ("!rand!") do set "password=!password!!chars:~%%j,1!"
+    set /a "seed=(seed*214013+2531011) %% 65536"
 )
 endlocal & set "password=%password%"
-
 rem ——————————————————————————
 
 REM 提取原文件的文件名和拓展名
